@@ -4,22 +4,22 @@
   "description": "A plugin for adding a log book / revision history / audit / paper trail to a sequelize model.",
   "main": "index.js",
   "scripts": {
-    "test": "istanbul cover _mocha -x \"./test/**\" -- -t 10000 \"./test/**/*.js\" --recursive --require ./test/mocha.opts.js",
     "prettier": "find ./ -name '*.js' -not -path './node_modules/*' | xargs ./node_modules/.bin/prettier --write --single-quote --trailing-comma es5",
-    "coverage": "npm run test && open ./coverage/lcov-report/sequelize-logbook/index.html"
+    "test": "mocha",
+    "coverage": "nyc --temp-dir='./coverage/.nyc_output' --reporter=html --reporter=text-summary npm run test"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
-    "chai-as-promised": "^6.0.0",
-    "istanbul": "^0.4.5",
-    "mocha": "^3.5.3",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "mocha": "^6.2.2",
+    "nyc": "^14.1.1",
     "prettier": "^1.7.2",
     "proxyquire": "^1.8.0",
-    "sqlite3": "^3.1.12"
+    "sqlite3": "^4.1.1"
   },
   "dependencies": {
     "lodash": "^4.17.4",
-    "sequelize": "^3.25.0"
+    "sequelize": "^5.21.3"
   },
   "keywords": [
     "sequelize",

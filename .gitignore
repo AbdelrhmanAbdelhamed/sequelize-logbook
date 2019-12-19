@@ -9,5 +9,6 @@ npm-debug.log.*
 
 coverage/*
 .mocha
+.nyc_output/
 
 test/*.sqlite

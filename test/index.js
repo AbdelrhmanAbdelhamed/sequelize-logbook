@@ -1,19 +1,26 @@
+const chai = require('chai');
+const chaiAsPromised = require('chai-as-promised');
+const expect = require('chai').expect;
+
 const _ = require('lodash');
 const Sequelize = require('sequelize');
 const trackRevisions = require('../index');
-const fs = require('fs');
+
+chai.use(chaiAsPromised);
+
+process.on('unhandledRejection', function(event, promise) {
+  console.log('Unhandled promise rejection:');
+  console.log(promise);
+  console.trace(event.stack);
+});
+
 
 function createFakeDB() {
-  const fakeDB = new Sequelize('database', 'username', 'password', {
+  const fakeDB = new Sequelize({
     dialect: 'sqlite',
     storage: __dirname + '/fakedb.sqlite',
-    logging: false,
-    pool: { maxConnections: 1 },
+    logging: false
   });
-  fakeDB.destroy = () => {
-    fakeDB.close();
-    fs.unlinkSync(fakeDB.options.storage);
-  };
   return new Promise((resolve, reject) => {
     fakeDB
       .getQueryInterface()
@@ -35,9 +42,6 @@ describe('sequelize-revisions', () => {
       return Model.sync();
     });
   });
-  afterEach(() => {
-    temporaryDB.destroy();
-  });
   context('when using transactions', () => {
     let transaction, transactionOptions;
     function openTransaction() {
@@ -45,7 +49,7 @@ describe('sequelize-revisions', () => {
         transaction = txtn;
         transactionOptions = {
           transaction: transaction,
-          individualHooks: true,
+          individualHooks: true
         };
         return transaction;
       });
@@ -98,15 +102,15 @@ describe('sequelize-revisions', () => {
           return finishTransaction();
         });
 
-        it('should make name $tableName + _revision', () => {
+        it('should make name $tableName + Revision', () => {
           expect(RevisionModel.name).to.equal(
-            Model.options.name.singular + '_revision'
+            Model.options.name.singular + 'Revision'
           );
         });
         it('should add revisionId, revisionFrom, and revisionTo to the model', () => {
-          expect(RevisionModel.rawAttributes.revisionId).to.be.defined;
-          expect(RevisionModel.rawAttributes.revisionValidFrom).to.be.defined;
-          expect(RevisionModel.rawAttributes.revisionValidTo).to.be.defined;
+          expect(RevisionModel.rawAttributes.revisionId).to.not.be.undefined;
+          expect(RevisionModel.rawAttributes.revisionValidFrom).to.not.be.undefined;
+          expect(RevisionModel.rawAttributes.revisionValidTo).to.not.be.undefined;
         });
         it('should copy all the original fields into the revisions Table', () => {
           const originalKeys = _.omit(Model.rawAttributes, [
@@ -232,7 +236,7 @@ describe('sequelize-revisions', () => {
           });
           it('should set revisionValidTo to null', () => {
             expect(revision).to.have.property('revisionValidTo');
-            expect(revision.revisionValidTo).to.equal.null;
+            expect(revision.revisionValidTo).to.be.null;
           });
         });
         context('that is a second revision', () => {
@@ -244,11 +248,12 @@ describe('sequelize-revisions', () => {
                 firstRevision = rev;
                 return RevisionModel.create(data, transactionOptions);
               })
-              .then(() => {
+              .then(rev => {
+                secondRevision = rev;
                 return firstRevision.reload(transactionOptions);
               })
               .then(rev => {
-                secondRevision = rev;
+                firstRevision = rev;
               })
               .then(finishTransaction)
               .catch(rollbackTransaction);
@@ -265,7 +270,7 @@ describe('sequelize-revisions', () => {
           });
           it('should set revisionValidTo to null on the second instance', () => {
             expect(secondRevision).to.have.property('revisionValidTo');
-            expect(secondRevision.revisionValidTo).to.equal.null;
+            expect(secondRevision.revisionValidTo).to.be.null;
           });
         });
         describe('that is a later revision', () => {
@@ -356,7 +361,7 @@ describe('sequelize-revisions', () => {
               transaction: transaction,
             })
               .then(revisions => {
-                expect(revisions[0].revisionValidTo).to.be.defined;
+                expect(revisions[0].revisionValidTo).to.not.be.undefined;
                 expect(revisions[1].revisionValidTo).to.be.null;
               })
               .then(finishTransaction)
@@ -410,14 +415,14 @@ describe('sequelize-revisions', () => {
               .catch(rollbackTransaction);
           });
           it('should make the latest revision invalid', () => {
-            return RevisionModel.find({
+            return RevisionModel.findOne({
               where: {
                 id: instance.id,
               },
               transaction: transaction,
             })
               .then(revision => {
-                expect(revision.revisionValidTo).to.be.defined;
+                expect(revision.revisionValidTo).to.not.be.undefined;
               })
               .then(finishTransaction)
               .catch(rollbackTransaction);
@@ -449,15 +454,15 @@ describe('sequelize-revisions', () => {
           return temporaryDB.sync();
         });
 
-        it('should make name $tableName + _revision', () => {
+        it('should make name $tableName + Revision', () => {
           expect(RevisionModel.name).to.equal(
-            Model.options.name.singular + '_revision'
+            Model.options.name.singular + 'Revision'
           );
         });
         it('should add revisionId, revisionFrom, and revisionTo to the model', () => {
-          expect(RevisionModel.rawAttributes.revisionId).to.be.defined;
-          expect(RevisionModel.rawAttributes.revisionValidFrom).to.be.defined;
-          expect(RevisionModel.rawAttributes.revisionValidTo).to.be.defined;
+          expect(RevisionModel.rawAttributes.revisionId).to.not.be.undefined;
+          expect(RevisionModel.rawAttributes.revisionValidFrom).to.not.be.undefined;
+          expect(RevisionModel.rawAttributes.revisionValidTo).to.not.be.undefined;
         });
         it('should copy all the original fields into the revisions Table', () => {
           const originalKeys = _.omit(Model.rawAttributes, [
@@ -566,7 +571,7 @@ describe('sequelize-revisions', () => {
           });
           it('should set revisionValidTo to null', () => {
             expect(revision).to.have.property('revisionValidTo');
-            expect(revision.revisionValidTo).to.equal.null;
+            expect(revision.revisionValidTo).to.be.null;
           });
         });
         context('that is a second revision', () => {
@@ -578,11 +583,12 @@ describe('sequelize-revisions', () => {
                 firstRevision = rev;
                 return RevisionModel.create(data);
               })
-              .then(() => {
+              .then(rev => {
+                secondRevision = rev;
                 return firstRevision.reload();
               })
               .then(rev => {
-                secondRevision = rev;
+                firstRevision = rev;
               });
           });
           it('should set revisionValidFrom automatically', () => {
@@ -597,7 +603,7 @@ describe('sequelize-revisions', () => {
           });
           it('should set revisionValidTo to null on the second instance', () => {
             expect(secondRevision).to.have.property('revisionValidTo');
-            expect(secondRevision.revisionValidTo).to.equal.null;
+            expect(secondRevision.revisionValidTo).to.be.null;
           });
         });
         describe('that is a later revision', () => {
@@ -676,7 +682,7 @@ describe('sequelize-revisions', () => {
                 id: instance.id,
               },
             }).then(revisions => {
-              expect(revisions[0].revisionValidTo).to.be.defined;
+              expect(revisions[0].revisionValidTo).to.not.be.undefined;
               expect(revisions[1].revisionValidTo).to.be.null;
             });
           });
@@ -720,12 +726,12 @@ describe('sequelize-revisions', () => {
             });
           });
           it('should make the latest revision invalid', () => {
-            return RevisionModel.find({
+            return RevisionModel.findOne({
               where: {
                 id: instance.id,
               },
             }).then(revision => {
-              expect(revision.revisionValidTo).to.be.defined;
+              expect(revision.revisionValidTo).to.not.be.undefined;
             });
           });
         });
@@ -754,7 +760,7 @@ describe('sequelize-revisions', () => {
         });
       });
       it('should be set', () => {
-        return RevisionModel.find({
+        return RevisionModel.findOne({
           where: {
             id: instance.id,
           },
@@ -784,7 +790,7 @@ describe('sequelize-revisions', () => {
         });
       });
       it('should be set to the process.env.NODE_ENV', () => {
-        return RevisionModel.find({
+        return RevisionModel.findOne({
           where: {
             id: instance.id,
           },
