@@ -1,5 +1,0 @@
-{
-  "nyc": {
-      "temp-dir": "./coverage/.nyc_output"
-  }
-}
