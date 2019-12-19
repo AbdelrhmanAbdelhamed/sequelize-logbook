@@ -20,8 +20,8 @@ module.exports = function trackRevisions(Model) {
   if (!Model) {
     return;
   }
-  const modelNameSuffix = '_revision';
-  const omittedAttributes = ['createdAt', 'updatedAt', 'deletedAt'];
+  const modelNameSuffix = 'Revision';
+  const omittedAttributes = [];
   const fieldsToIgnore = [
     'primaryKey',
     'autoIncrement',
@@ -83,24 +83,24 @@ module.exports = function trackRevisions(Model) {
     Model.name + modelNameSuffix,
     attributes,
     {
+      underscored: true,
       timestamps: false,
       paranoid: false,
       indexes: [
         {
-          fields: ['revisionValidFrom'],
+          fields: ['revision_valid_from'],
         },
         {
-          fields: ['revisionValidTo'],
+          fields: ['revision_valid_to'],
         },
         {
           fields: [referenceModelPrimaryKey],
         },
-      ],
-      classMethods: {
-        associate: associateFunction,
-      },
+      ]
     }
   );
+
+  revisionModel.associate = associateFunction;
 
   function associateFunction() {
     function ensureNoPreviousRevision(record, options) {
