@@ -7,8 +7,8 @@ const _ = require('lodash');
 const Sequelize = require('sequelize');
 
 function getPrimaryKey(Model) {
-  return Object.keys(Model.attributes).filter(field => {
-    return Model.attributes[field].primaryKey;
+  return Object.keys(Model.rawAttributes).filter(field => {
+    return Model.rawAttributes[field].primaryKey;
   })[0];
 }
 /**
@@ -68,7 +68,7 @@ module.exports = function trackRevisions(Model) {
   const sequelize = Model.sequelize;
   const referenceModelPrimaryKey = getPrimaryKey(Model);
   const trackedAttributes = _.reduce(
-    _.omit(Model.attributes, omittedAttributes),
+    _.omit(Model.rawAttributes, omittedAttributes),
     function(map, attributeDef, attributeName) {
       if (attributeDef.type.key !== 'VIRTUAL') {
         map[attributeName] = _.omit(attributeDef, fieldsToIgnore);

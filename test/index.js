@@ -104,21 +104,21 @@ describe('sequelize-revisions', () => {
           );
         });
         it('should add revisionId, revisionFrom, and revisionTo to the model', () => {
-          expect(RevisionModel.attributes.revisionId).to.be.defined;
-          expect(RevisionModel.attributes.revisionValidFrom).to.be.defined;
-          expect(RevisionModel.attributes.revisionValidTo).to.be.defined;
+          expect(RevisionModel.rawAttributes.revisionId).to.be.defined;
+          expect(RevisionModel.rawAttributes.revisionValidFrom).to.be.defined;
+          expect(RevisionModel.rawAttributes.revisionValidTo).to.be.defined;
         });
         it('should copy all the original fields into the revisions Table', () => {
-          const originalKeys = _.omit(Model.attributes, [
+          const originalKeys = _.omit(Model.rawAttributes, [
             'updatedAt',
             'createdAt',
             'deletedAt',
           ]);
-          expect(RevisionModel.attributes).to.contain.all.keys(originalKeys);
+          expect(RevisionModel.rawAttributes).to.contain.all.keys(originalKeys);
         });
         it('should strip primaryKey, unique, references, onDelete, onUpdate, autoIncrement attributes', () => {
           const dynamicAttributes = _.values(
-            _.omit(RevisionModel.attributes, [
+            _.omit(RevisionModel.rawAttributes, [
               'revisionId',
               'revisionValidFrom',
               'revisionValidTo',
@@ -455,21 +455,21 @@ describe('sequelize-revisions', () => {
           );
         });
         it('should add revisionId, revisionFrom, and revisionTo to the model', () => {
-          expect(RevisionModel.attributes.revisionId).to.be.defined;
-          expect(RevisionModel.attributes.revisionValidFrom).to.be.defined;
-          expect(RevisionModel.attributes.revisionValidTo).to.be.defined;
+          expect(RevisionModel.rawAttributes.revisionId).to.be.defined;
+          expect(RevisionModel.rawAttributes.revisionValidFrom).to.be.defined;
+          expect(RevisionModel.rawAttributes.revisionValidTo).to.be.defined;
         });
         it('should copy all the original fields into the revisions Table', () => {
-          const originalKeys = _.omit(Model.attributes, [
+          const originalKeys = _.omit(Model.rawAttributes, [
             'updatedAt',
             'createdAt',
             'deletedAt',
           ]);
-          expect(RevisionModel.attributes).to.contain.all.keys(originalKeys);
+          expect(RevisionModel.rawAttributes).to.contain.all.keys(originalKeys);
         });
         it('should strip primaryKey, unique, references, onDelete, onUpdate, autoIncrement attributes', () => {
           const dynamicAttributes = _.values(
-            _.omit(RevisionModel.attributes, [
+            _.omit(RevisionModel.rawAttributes, [
               'revisionId',
               'revisionValidFrom',
               'revisionValidTo',
