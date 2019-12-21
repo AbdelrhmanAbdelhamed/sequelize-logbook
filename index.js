@@ -80,10 +80,10 @@ module.exports = function trackRevisions(Model, options) {
   const attributes = _.merge(revisionAttributes, trackedAttributes);
   const indexes = _.concat(options.indexes || [], [
     {
-      fields: ['revision_valid_from'],
+      fields: [{attribute: 'revision_valid_from', order: 'DESC'}]
     },
     {
-      fields: ['revision_valid_to'],
+      fields: [{attribute: 'revision_valid_to', order: 'DESC'}]
     },
     {
       fields: [referenceModelPrimaryKey],
