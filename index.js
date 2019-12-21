@@ -16,7 +16,7 @@ function getPrimaryKey(Model) {
  * @memberOf SequelizeRevisions
  * @param {SequelizeModel}   Model   - The model you want revisions tracked on
  */
-module.exports = function trackRevisions(Model) {
+module.exports = function trackRevisions(Model, options) {
   if (!Model) {
     return;
   }
@@ -78,6 +78,17 @@ module.exports = function trackRevisions(Model) {
     {}
   );
   const attributes = _.merge(revisionAttributes, trackedAttributes);
+  const indexes = _.concat(options.indexes || [], [
+    {
+      fields: ['revision_valid_from'],
+    },
+    {
+      fields: ['revision_valid_to'],
+    },
+    {
+      fields: [referenceModelPrimaryKey],
+    },
+  ])
 
   const revisionModel = sequelize.define(
     Model.name + modelNameSuffix,
@@ -86,17 +97,7 @@ module.exports = function trackRevisions(Model) {
       underscored: true,
       timestamps: false,
       paranoid: false,
-      indexes: [
-        {
-          fields: ['revision_valid_from'],
-        },
-        {
-          fields: ['revision_valid_to'],
-        },
-        {
-          fields: [referenceModelPrimaryKey],
-        },
-      ]
+      indexes
     }
   );
 
